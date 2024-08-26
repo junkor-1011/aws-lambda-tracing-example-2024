@@ -38,6 +38,111 @@ exports[`snapshot test 1`] = `
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Delete",
     },
+    "sampleapphelloworldfunction1F7782AA": {
+      "DependsOn": [
+        "sampleapphelloworldfunctionServiceRoleDefaultPolicy8AAF12CA",
+        "sampleapphelloworldfunctionServiceRoleC7E34B10",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "POWERTOOLS_LOG_LEVEL": "DEBUG",
+            "POWERTOOLS_SERVICE_NAME": "hello-world-function",
+          },
+        },
+        "FunctionName": "LF-hello-world",
+        "Handler": "index.handler",
+        "MemorySize": 256,
+        "Role": {
+          "Fn::GetAtt": [
+            "sampleapphelloworldfunctionServiceRoleC7E34B10",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Tags": [
+          {
+            "Key": "APPLICATION_NAME",
+            "Value": "sample-app",
+          },
+        ],
+        "Timeout": 10,
+        "TracingConfig": {
+          "Mode": "Active",
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "sampleapphelloworldfunctionServiceRoleC7E34B10": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "APPLICATION_NAME",
+            "Value": "sample-app",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "sampleapphelloworldfunctionServiceRoleDefaultPolicy8AAF12CA": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "sampleapphelloworldfunctionServiceRoleDefaultPolicy8AAF12CA",
+        "Roles": [
+          {
+            "Ref": "sampleapphelloworldfunctionServiceRoleC7E34B10",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
   },
   "Rules": {
     "CheckBootstrapVersion": {
