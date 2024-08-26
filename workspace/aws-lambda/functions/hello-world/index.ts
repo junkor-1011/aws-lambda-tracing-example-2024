@@ -24,7 +24,7 @@ const lambdaHandler = async (
       (res) => res.text(),
     );
 
-    logger.info(`ipv4: ${ipv4}`);
+    logger.info(`ipv4: ${ipv4.trim()}`);
 
     metrics.addMetric('success', MetricUnit.Count, 1);
   } catch (err) {
