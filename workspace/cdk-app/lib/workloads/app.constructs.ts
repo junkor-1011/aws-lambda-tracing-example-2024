@@ -40,6 +40,13 @@ export class SampleApp extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
+    const table = new dynamodb.TableV2(this, 'sample table', {
+      tableName: 'ddb-table-sample',
+      partitionKey: { name: 'majorId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'minorId', type: dynamodb.AttributeType.NUMBER },
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+
     const helloWorldFunction = new NodejsFunction(
       this,
       'hello-world-function',
@@ -56,6 +63,7 @@ export class SampleApp extends Construct {
           POWERTOOLS_LOG_LEVEL: 'DEBUG',
           POWERTOOLS_SERVICE_NAME: 'hello-world-function',
           TARGET_BUCKET: bucket.bucketName,
+          TARGET_DYNAMODB_TABLE: table.tableName,
         },
         tracing: lambda.Tracing.ACTIVE,
         architecture: lambda.Architecture.ARM_64,
@@ -64,5 +72,6 @@ export class SampleApp extends Construct {
       },
     );
     bucket.grantWrite(helloWorldFunction);
+    table.grantReadData(helloWorldFunction);
   }
 }

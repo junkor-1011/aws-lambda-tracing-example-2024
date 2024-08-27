@@ -9,16 +9,19 @@ import { captureLambdaHandler } from '@aws-lambda-powertools/tracer/middleware';
 import middy from '@middy/core';
 import type { Context } from 'aws-lambda';
 import { logger, metrics, tracer } from './powertools-util';
-import { s3PutObjectExample } from './sdk-client-handling';
+import { dynamodbScanExample, s3PutObjectExample } from './sdk-client-handling';
 
-const { TARGET_BUCKET } = (() => {
-  const TARGET_BUCKET = process.env.TARGET_BUCKET;
+const { TARGET_BUCKET, TARGET_DYNAMODB_TABLE } = (() => {
+  const { TARGET_BUCKET, TARGET_DYNAMODB_TABLE } = process.env;
 
   if (TARGET_BUCKET === undefined) {
     throw new Error('env variable TARGET_BUCKET is not defined.');
   }
+  if (TARGET_DYNAMODB_TABLE === undefined) {
+    throw new Error('env variable TARGET_DYNAMODB_TABLE is not defined.');
+  }
 
-  return { TARGET_BUCKET } as const;
+  return { TARGET_BUCKET, TARGET_DYNAMODB_TABLE } as const;
 })() satisfies Record<string, string>;
 
 const lambdaHandler = async (
@@ -45,6 +48,12 @@ const lambdaHandler = async (
     await s3PutObjectExample(TARGET_BUCKET);
   } catch (err) {
     logger.error(`[s3PutObject]unexpected error occured: ${err}`);
+  }
+
+  try {
+    await dynamodbScanExample(TARGET_DYNAMODB_TABLE);
+  } catch (err) {
+    logger.error(`[ddb scan]unexpected error occured: ${err}`);
   }
 
   logger.debug('finish');
