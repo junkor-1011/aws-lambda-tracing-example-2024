@@ -1,17 +1,25 @@
+import process from 'node:process';
+
 import 'source-map-support/register';
 
-import { Logger } from '@aws-lambda-powertools/logger';
 import { injectLambdaContext } from '@aws-lambda-powertools/logger/middleware';
-import { MetricUnit, Metrics } from '@aws-lambda-powertools/metrics';
+import { MetricUnit } from '@aws-lambda-powertools/metrics';
 import { logMetrics } from '@aws-lambda-powertools/metrics/middleware';
-import { Tracer } from '@aws-lambda-powertools/tracer';
 import { captureLambdaHandler } from '@aws-lambda-powertools/tracer/middleware';
 import middy from '@middy/core';
 import type { Context } from 'aws-lambda';
+import { logger, metrics, tracer } from './powertools-util';
+import { s3PutObjectExample } from './sdk-client-handling';
 
-const tracer = new Tracer();
-const logger = new Logger();
-const metrics = new Metrics();
+const { TARGET_BUCKET } = (() => {
+  const TARGET_BUCKET = process.env.TARGET_BUCKET;
+
+  if (TARGET_BUCKET === undefined) {
+    throw new Error('env variable TARGET_BUCKET is not defined.');
+  }
+
+  return { TARGET_BUCKET } as const;
+})() satisfies Record<string, string>;
 
 const lambdaHandler = async (
   _event: unknown,
@@ -26,11 +34,17 @@ const lambdaHandler = async (
 
     logger.info(`ipv4: ${ipv4.trim()}`);
 
-    metrics.addMetric('success', MetricUnit.Count, 1);
+    metrics.addMetric('ipv4-success', MetricUnit.Count, 1);
   } catch (err) {
-    logger.error(`unexpected error occured: ${err}`);
+    logger.error(`[ipv4]unexpected error occured: ${err}`);
 
-    metrics.addMetric('failed', MetricUnit.Count, 1);
+    metrics.addMetric('failed to get ipv4', MetricUnit.Count, 1);
+  }
+
+  try {
+    await s3PutObjectExample(TARGET_BUCKET);
+  } catch (err) {
+    logger.error(`[s3PutObject]unexpected error occured: ${err}`);
   }
 
   logger.debug('finish');

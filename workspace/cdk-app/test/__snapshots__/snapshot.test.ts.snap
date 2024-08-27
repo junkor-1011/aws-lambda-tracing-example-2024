@@ -57,6 +57,9 @@ exports[`snapshot test 1`] = `
           "Variables": {
             "POWERTOOLS_LOG_LEVEL": "DEBUG",
             "POWERTOOLS_SERVICE_NAME": "hello-world-function",
+            "TARGET_BUCKET": {
+              "Ref": "sampleappdummyoutputbucketB93B7DA7",
+            },
           },
         },
         "FunctionName": "LF-hello-world",
@@ -130,6 +133,40 @@ exports[`snapshot test 1`] = `
               ],
               "Effect": "Allow",
               "Resource": "*",
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "sampleappdummyoutputbucketB93B7DA7",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "sampleappdummyoutputbucketB93B7DA7",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",

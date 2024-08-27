@@ -35,28 +35,34 @@ export class SampleApp extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    new s3.Bucket(this, 'dummy output bucket', {
+    const bucket = new s3.Bucket(this, 'dummy output bucket', {
       bucketName: `dummy-output-bucket-${Aws.ACCOUNT_ID}-${Aws.REGION}`,
       removalPolicy: RemovalPolicy.DESTROY,
     });
 
-    new NodejsFunction(this, 'hello-world-function', {
-      functionName: 'LF-hello-world',
-      handler: 'handler',
-      entry: path.join(
-        __dirname,
-        '../../../aws-lambda/functions/hello-world/index.ts',
-      ),
-      runtime: lambda.Runtime.NODEJS_20_X,
-      bundling: lambdaNodejsBundlingOption,
-      environment: {
-        POWERTOOLS_LOG_LEVEL: 'DEBUG',
-        POWERTOOLS_SERVICE_NAME: 'hello-world-function',
+    const helloWorldFunction = new NodejsFunction(
+      this,
+      'hello-world-function',
+      {
+        functionName: 'LF-hello-world',
+        handler: 'handler',
+        entry: path.join(
+          __dirname,
+          '../../../aws-lambda/functions/hello-world/index.ts',
+        ),
+        runtime: lambda.Runtime.NODEJS_20_X,
+        bundling: lambdaNodejsBundlingOption,
+        environment: {
+          POWERTOOLS_LOG_LEVEL: 'DEBUG',
+          POWERTOOLS_SERVICE_NAME: 'hello-world-function',
+          TARGET_BUCKET: bucket.bucketName,
+        },
+        tracing: lambda.Tracing.ACTIVE,
+        architecture: lambda.Architecture.ARM_64,
+        timeout: Duration.seconds(10),
+        memorySize: 256,
       },
-      tracing: lambda.Tracing.ACTIVE,
-      architecture: lambda.Architecture.ARM_64,
-      timeout: Duration.seconds(10),
-      memorySize: 256,
-    });
+    );
+    bucket.grantWrite(helloWorldFunction);
   }
 }
