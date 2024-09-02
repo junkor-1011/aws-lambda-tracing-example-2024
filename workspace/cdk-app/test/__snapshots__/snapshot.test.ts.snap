@@ -56,6 +56,7 @@ exports[`snapshot test 1`] = `
         "Environment": {
           "Variables": {
             "POWERTOOLS_LOG_LEVEL": "DEBUG",
+            "POWERTOOLS_METRICS_NAMESPACE": "LF-hello-world",
             "POWERTOOLS_SERVICE_NAME": "hello-world-function",
             "TARGET_BUCKET": {
               "Ref": "sampleappdummyoutputbucketB93B7DA7",

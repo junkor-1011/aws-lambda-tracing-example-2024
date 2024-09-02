@@ -62,6 +62,7 @@ export class SampleApp extends Construct {
         environment: {
           POWERTOOLS_LOG_LEVEL: 'DEBUG',
           POWERTOOLS_SERVICE_NAME: 'hello-world-function',
+          POWERTOOLS_METRICS_NAMESPACE: 'LF-hello-world',
           TARGET_BUCKET: bucket.bucketName,
           TARGET_DYNAMODB_TABLE: table.tableName,
         },
